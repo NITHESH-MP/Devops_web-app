@@ -1,33 +1,40 @@
 pipeline {
     agent any
-    tools {maven "maven"}
+
+    environment {
+        DOCKER_CREDENTIALS = credentials('docker-hub-cred')  
+    }
+
     stages {
         stage('SCM') {
             steps {
                 git branch: 'main', url: 'https://github.com/NITHESH-MP/web-app.git'
             }
         }
+
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh "mvn clean"
+                sh "mvn install"
             }
         }
-        stage('build to images') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t nithesh04/webapp1 .'
+                    sh 'docker build -t nithesh04/web-app .'
                 }
             }
         }
-        stage('push to hub') {
+
+        stage('Push to Docker Hub') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker_cred', toolName: 'docker', url: 'https://index.docker.io/v1/') {
-                              sh 'docker push nithesh04/webapp1'
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-cred') {
+                        sh 'docker push nithesh04/web-app'
                     }
                 }
             }
         }
-        
     }
 }
