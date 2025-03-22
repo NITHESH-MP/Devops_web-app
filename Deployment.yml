@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: web-app
-        image: nithesh04/web-app
+        image: nithesh04/web-app/
         ports:
         - containerPort: 9000
 
